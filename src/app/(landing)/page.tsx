@@ -9,29 +9,6 @@ export default async function HomePage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <nav className="border-b px-6 py-4 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2 text-xl font-bold">
-          <GraduationCap className="h-8 w-8 text-primary" />
-          San BartolomeHS
-        </Link>
-        <div className="flex items-center gap-4">
-          {session ? (
-            <Button asChild>
-              <Link href="/dashboard">Dashboard</Link>
-            </Button>
-          ) : (
-            <>
-              <Button variant="ghost" asChild>
-                <Link href="/login">Login</Link>
-              </Button>
-              <Button asChild>
-                <Link href="/register">Get Started</Link>
-              </Button>
-            </>
-          )}
-        </div>
-      </nav>
-
       <section className="flex-1 flex items-center justify-center px-6 py-20 text-center">
         <div className="max-w-3xl">
           <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6">
@@ -97,17 +74,6 @@ export default async function HomePage() {
           ))}
         </div>
       </section>
-
-      <footer className="px-6 py-10 border-t">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-          <p>&copy; 2026 San BartolomeHS. All rights reserved.</p>
-          <div className="flex gap-6">
-            <Link href="/privacy" className="hover:underline">Privacy Policy</Link>
-            <Link href="/terms" className="hover:underline">Terms of Service</Link>
-            <Link href="/contact" className="hover:underline">Contact</Link>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }
