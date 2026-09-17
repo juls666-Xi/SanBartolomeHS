@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Link from "next/link";
 import { GraduationCap, X } from "lucide-react";
 
@@ -126,15 +125,40 @@ export default function RegisterModal() {
           </div>
           <div className="space-y-2">
             <Label>I am a</Label>
-            <Select value={role} onValueChange={(v) => setRole(v as "STUDENT" | "TEACHER")}>
-              <SelectTrigger className="bg-background">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="STUDENT">Student</SelectItem>
-                <SelectItem value="TEACHER">Teacher</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                {
+                  value: "STUDENT",
+                  label: "Student",
+                  description: "Access courses",
+                  selectedClass: "border-emerald-200 bg-emerald-50 text-emerald-900",
+                  idleClass: "border-border bg-background hover:bg-muted/60",
+                },
+                {
+                  value: "TEACHER",
+                  label: "Teacher",
+                  description: "Manage classes",
+                  selectedClass: "border-sky-200 bg-sky-50 text-sky-900",
+                  idleClass: "border-border bg-background hover:bg-muted/60",
+                },
+              ].map((option) => {
+                const isSelected = role === option.value;
+
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => setRole(option.value as "STUDENT" | "TEACHER")}
+                    className={`rounded-lg border p-3 text-left transition-colors ${
+                      isSelected ? option.selectedClass : option.idleClass
+                    }`}
+                  >
+                    <div className="font-medium">{option.label}</div>
+                    <div className="text-xs opacity-80">{option.description}</div>
+                  </button>
+                );
+              })}
+            </div>
           </div>
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? "Creating account..." : "Create Account"}
