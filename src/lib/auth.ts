@@ -4,6 +4,7 @@ import Google from "next-auth/providers/google";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import bcrypt from "bcryptjs";
 import prisma from "@/lib/prisma";
+import { syncUserRoleToSupabase } from "@/lib/supabase/sync-role";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: PrismaAdapter(prisma),
@@ -62,6 +63,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         (session.user as any).role = token.role as string;
       }
       return session;
+    },
+    async signIn({ user }) {
+      if (user?.id && (user as any).role) {
+        await syncUserRoleToSupabase(user.id, (user as any).role);
+      }
+      return true;
     },
   },
 });

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import prisma from "@/lib/prisma";
+import { syncUserRoleToSupabase } from "@/lib/supabase/sync-role";
 
 export async function POST(req: Request) {
   try {
@@ -34,6 +35,8 @@ export async function POST(req: Request) {
         role: role || "STUDENT",
       },
     });
+
+    await syncUserRoleToSupabase(user.id, user.role);
 
     return NextResponse.json({
       user: { id: user.id, name: user.name, email: user.email, role: user.role },

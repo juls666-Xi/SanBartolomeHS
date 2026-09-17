@@ -1,23 +1,30 @@
-import { auth } from "@/lib/auth";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { createSupabaseMiddlewareClient } from "@/lib/supabase/middleware";
 
-export default auth((req) => {
-  const { pathname } = req.nextUrl;
-  const session = req.auth;
+export default async function middleware(req: NextRequest) {
+  const res = NextResponse.next();
+  const supabase = createSupabaseMiddlewareClient(req, res);
+
+  const { data: { user } } = await supabase.auth.getUser();
 
   const publicPaths = ["/", "/login", "/register", "/api/auth"];
+  const pathname = req.nextUrl.pathname;
+
   if (publicPaths.some((p) => pathname.startsWith(p))) {
-    if (session?.user) {
-      return NextResponse.redirect(new URL(getDashboardPath((session.user as any).role), req.url));
+    if (user?.user_metadata?.role) {
+      return NextResponse.redirect(new URL(getDashboardPath(user.user_metadata.role as string), req.url));
     }
-    return NextResponse.next();
+    return res;
   }
 
-  if (!session) {
+  if (!user) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
-  const role = (session.user as any).role;
+  const role = user.user_metadata?.role as string;
+  if (!role) {
+    return NextResponse.redirect(new URL("/login", req.url));
+  }
 
   if (pathname === "/") {
     return NextResponse.redirect(new URL(getDashboardPath(role), req.url));
@@ -28,8 +35,8 @@ export default auth((req) => {
     return NextResponse.redirect(new URL(getDashboardPath(role), req.url));
   }
 
-  return NextResponse.next();
-});
+  return res;
+}
 
 function getDashboardPath(role: string): string {
   switch (role) {
