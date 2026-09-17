@@ -2,8 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { v4 as uuid } from "uuid";
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
+import { put } from "@vercel/blob";
 
 export async function POST(req: Request) {
   try {
@@ -20,17 +19,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
     }
 
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
+    const ext = file.name.split(".").pop() || "";
+    const filename = `${uuid()}.${ext}`;
 
-    const ext = path.extname(file.name);
-    const filename = `${uuid()}${ext}`;
-
-    const uploadDir = path.join(process.cwd(), "public", "uploads");
-    await mkdir(uploadDir, { recursive: true });
-
-    const filepath = path.join(uploadDir, filename);
-    await writeFile(filepath, buffer);
+    const blob = await put(filename, file, {
+      access: "public",
+      addRandomSuffix: false,
+    });
 
     const fileRecord = await prisma.fileUpload.create({
       data: {
@@ -44,7 +39,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       id: fileRecord.id,
-      url: `/uploads/${filename}`,
+      url: blob.url,
       originalName: file.name,
     });
   } catch (error) {
